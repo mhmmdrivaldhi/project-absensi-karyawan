@@ -1,0 +1,43 @@
+# ⚠️ Environment & Security Files
+.env
+.env.*
+!.env.example
+/auth.json
+
+# ⚡ Laravel Cache & Logs
+/bootstrap/cache
+/storage/logs
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/*.key
+/storage/pail
+
+# 📂 Dependencies & Build Files
+/node_modules
+/vendor
+/public/build
+/public/hot
+/public/storage
+
+# 🛑 IDE & Editor Files
+/.phpactor.json
+/.phpunit.cache
+/.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+# ⚠️ Debugging & Testing
+npm-debug.log
+yarn-error.log
+
+# 🛢️ MySQL Database Backup (tambahan untuk MySQL)
+*.sql
+*.sql.gz
+*.dump
+*.db
