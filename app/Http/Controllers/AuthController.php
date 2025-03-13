@@ -8,12 +8,26 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public function index () {
+        return view('auth.login');
+    }
     public function loginProcess(Request $request)
     {
-        if (Auth::guard('employee')->attempt(['nik' => $request->nik, 'password' => $request->password])) {
+        $credentials = $request->validate([
+            'nik' => htmlspecialchars('required|string'),
+            'password' => htmlspecialchars('required|string')
+        ]);
+
+        if (Auth::guard('employee')->attempt($credentials)) {
             return redirect('/dashboard');
-        } else {
-            echo "Failed Login!";
+        }
+        return redirect()->back()->withErrors(['login' => 'Failed Login!']);
+    }
+
+    public function logoutProcess() {
+        if(Auth::guard('employee')->check()) {
+            Auth::guard('employee')->logout();
+            return redirect('/');
         }
     }
 }

@@ -16,7 +16,7 @@ class EmployeeSeeder extends Seeder
     public function run(): void
     {
         Employee::create([
-            'nik' => '896332211553399',
+            'nik' => '12345678910',
             'name' => 'Muhammad Rivaldhi',
             'position' => 'IT Laravel Developer',
             'phone' => '089637856545',

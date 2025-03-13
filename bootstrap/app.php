@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EmployeeAuthMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -10,9 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
-        // \App\Http\Middleware\YourMiddleware::class;
+    ->withMiddleware(callback: function (Middleware $middleware): void {
+        $middleware->alias([
+            'employee' => EmployeeAuthMiddleware::class,
+        ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
