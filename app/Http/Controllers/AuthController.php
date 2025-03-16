@@ -21,13 +21,24 @@ class AuthController extends Controller
         if (Auth::guard('employee')->attempt($credentials)) {
             return redirect('/dashboard');
         }
-        return redirect()->back()->withErrors(['login' => 'Failed Login!']);
+         return redirect('/')->with('error','NIK or Password is Wrong!');
     }
 
-    public function logoutProcess() {
+    public function logoutProcess(Request $request) {
         if(Auth::guard('employee')->check()) {
-            Auth::guard('employee')->logout();
-            return redirect('/');
+            // Auth::guard('employee')->logout();
+            // Tandai bahwa logout diizinkan
+        $request->session()->put('logout_allowed', true);
+
+        // Lakukan logout
+        Auth::logout();
+
+        // Hapus session logout_allowed
+        $request->session()->forget('logout_allowed');
+
+        // Redirect ke halaman login
+        return redirect('/')->with('success', 'You have been logged out.');
+            // return redirect('/');
         }
     }
 }
