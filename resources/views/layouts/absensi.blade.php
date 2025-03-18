@@ -16,8 +16,7 @@
     <meta name="keywords" content="bootstrap 4, mobile template, cordova, phonegap, mobile, html" />
     <link rel="icon" type="image/png" href="{{ asset('assets/img/logo-title-absensi-2.png') }}" sizes="32x32">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-    <link rel=”stylesheet” href=”https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css”>
-    <link rel="manifest" href="__manifest.json">
+    <!-- <link rel="manifest" href="__manifest.json"> -->
 </head>
 
 <body style="background-color:#e9ecef;">
