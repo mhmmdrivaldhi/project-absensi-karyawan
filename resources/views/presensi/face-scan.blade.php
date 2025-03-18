@@ -22,19 +22,31 @@
             height: auto !important;
             border-radius: 30px;
         }
+        #map {
+            height: 220px;
+            border-radius: 10px;
+        }
     </style>
 @endsection
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 @section('content')
     <!-- Face Cam -->
-        <div class="row" style="margin-top: 130px;">
+        <div class="row" style="margin-top: 50px;">
             <div class="col">
                 <input type="hidden" name="location" id="location">
                 <div class="photo-facecam mt-3"></div>
             </div>
         </div>
         <div class="row">
-            <button type="button" id="faceScanning" class="btn btn-outline-primary btn-block m-3"><ion-icon name="scan"></ion-icon>TAKE SCANNING FACE</button>
+            <button type="button" id="faceScanning" class="btn btn-outline-primary btn-block m-2"><ion-icon name="scan"></ion-icon>TAKE SCANNING FACE</button>
+        </div>
+        <div class="row mt-1">
+            <div class="col">
+                <div id="map">
+
+                </div>
+            </div>
         </div>
     <!-- * End Face Cam -->
 @endsection
@@ -42,7 +54,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     Webcam.set({
-        height: 480,
+        height: 430,
         width: 640,
         image_format: 'jpeg',
         jpeg_quality: 80
@@ -64,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
-    // Jika mendukung, jalankan geolocation
+    // Jika mendukung Browser jalankan geolocation
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
 
     function successCallback(position) {
@@ -73,16 +85,21 @@ document.addEventListener("DOMContentLoaded", function() {
         let coordinates = latitude + "," + longitude;
 
         locationInput.value = coordinates;
-        console.log("Lokasi berhasil didapatkan:", coordinates); // Debugging
+        console.log("Lokasi berhasil didapatkan:", coordinates);
 
-        // // Debugging URL sebelum redirect
-        // let redirectUrl = "/absensi";
-        // console.log("Redirecting to:", redirectUrl);
+        var map = L.map('map').setView([latitude, longitude], 17);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">Global Maps</a>'
+        }).addTo(map);
 
-        // // Redirect dengan sedikit delay agar data terisi dengan benar
-        // setTimeout(() => {
-        //     window.location.href = redirectUrl;
-        // }, 500);
+        var marker = L.marker([latitude, longitude]).addTo(map);
+        var circle = L.circle([latitude, longitude], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 50
+        }).addTo(map);
     }
 
     function errorCallback(error) {
