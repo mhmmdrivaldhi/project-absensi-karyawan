@@ -30,6 +30,7 @@
 @endsection
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
 @section('content')
     <!-- Face Cam -->
         <div class="row" style="margin-top: 50px;">
@@ -106,6 +107,65 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error("Gagal mendapatkan lokasi:", error.message);
         alert("Gagal mendapatkan lokasi: " + error.message);
     }
+
+    $(document).ready(function(){
+        $("#faceScanning").click(function(e){
+            e.preventDefault();
+
+            let imageData = '';
+            let locationData = '';
+
+            Webcam.snap(function(uri){
+                imageData = uri;
+                sendData();
+            });
+
+            // const locationInput = document.getElementById('location');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        locationData = position.coords.latitude + "," + position.coords.longitude;
+                        $('#location').val(locationData);
+                        sendData();
+                        // locationInput.value = coordinates;
+                    },
+                    function(error) {
+                        alert("Gagal mendapatkan lokasi: " + error.message);
+                    }
+                );
+            } else {
+                alert("Geolocation tidak didukung oleh browser ini.");
+            }
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            // Fungsi untuk mengirim data
+            function sendData(){
+                if (imageData && locationData) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/absensi/store',
+                        data: {
+                        image: imageData,
+                        location: locationData,
+                        },
+                        cache: false,
+                        success: function(respond){
+                            alert('You Have Successfully Checked in!')
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Oops, There is an error!')
+                        }
+                    });
+                }
+            }
+        });
+    });
 });
+
 </script>
 @endpush

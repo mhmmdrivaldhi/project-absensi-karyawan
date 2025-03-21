@@ -9,6 +9,7 @@ Route::middleware(['employee.direct.login'])->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/logout', [AuthController::class, 'logoutProcess']);
     Route::get('/absensi', [AbsensiController::class, 'absensi']);
+    Route::POST('/absensi/store', [AbsensiController::class, 'store']);
 });
 
 Route::middleware(['employee.direct.logout'])->group(function(){
