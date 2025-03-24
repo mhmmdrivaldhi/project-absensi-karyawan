@@ -40,7 +40,11 @@
             </div>
         </div>
         <div class="row">
-            <button type="button" id="faceScanning" class="btn btn-outline-primary btn-block m-2"><ion-icon name="scan"></ion-icon>TAKE SCANNING FACE</button>
+            @if ($check > 0)
+            <button type="button" id="faceScanning" class="btn btn-outline-danger btn-block m-2"><ion-icon name="scan"></ion-icon>CHECK OUT SCANNING FACE</button>
+            @else
+            <button type="button" id="faceScanning" class="btn btn-outline-primary btn-block m-2"><ion-icon name="scan"></ion-icon>CHECK IN SCANNING FACE</button>
+            @endif
         </div>
         <div class="row mt-1">
             <div class="col">
@@ -49,6 +53,12 @@
                 </div>
             </div>
         </div>
+        <audio id="sound-notification-in">
+            <source src="{{ asset('assets/sounds/succes-check-in.mp3') }}" type="audio/mpeg">
+        </audio>
+        <audio id="sound-notification-out">
+            <source src="{{ asset('assets/sounds/succes-check-out.mp3') }}" type="audio/mpeg">
+        </audio>
     <!-- * End Face Cam -->
 @endsection
 @push('myscript')
@@ -111,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function() {
     $(document).ready(function(){
         $("#faceScanning").click(function(e){
             e.preventDefault();
+            let actionType = $(this).text().includes("CHECK OUT") ? "checkout" : "checkin";
 
             let imageData = '';
             let locationData = '';
@@ -150,15 +161,41 @@ document.addEventListener("DOMContentLoaded", function() {
                         type: 'POST',
                         url: '/absensi/store',
                         data: {
-                        image: imageData,
-                        location: locationData,
+                            action: actionType,
+                            image: imageData,
+                            location: locationData,
                         },
                         cache: false,
                         success: function(respond){
-                            alert('You Have Successfully Checked in!')
+                            let checkInSound = document.getElementById('sound-notification-in');
+                            let checkOutSound = document.getElementById('sound-notification-out');
+
+                         // Tampilkan SweetAlert dan putar suara sesuai aksi
+                            if (actionType === 'checkin') {
+                                checkInSound.play();  // Mainkan suara check-in
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: "You Successfully Checked-In",
+                                    icon: 'success',
+                                });
+                            } else {
+                                checkOutSound.play(); // Mainkan suara check-out
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: "You Successfully Checked-Out",
+                                    icon: 'success',
+                                });
+                            }
+
+                            setTimeout("location.href='/dashboard'", 2000);
                         },
                         error: function(xhr, status, error) {
-                            alert('Oops, There is an error!')
+                            Swal.fire({
+                                title: 'Failed!',
+                                text: 'Oops, There is an error',
+                                icon: 'error',
+                                confirmButtonText: 'Yes'
+                            });
                         }
                     });
                 }

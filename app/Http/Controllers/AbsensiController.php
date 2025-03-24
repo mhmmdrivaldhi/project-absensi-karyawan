@@ -6,12 +6,26 @@ use App\Models\Absensi;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AbsensiController extends Controller
 {
     public function absensi() {
-        return view('presensi.face-scan');
+        $nik = Auth::guard('employee')->user()->nik;
+        $absensi_date = date("Y-m-d");
+
+        // Cek apakah user sudah check-in hari ini
+        $absensi = Absensi::where('nik', $nik)
+                        ->where('absensi_date', $absensi_date)
+                        ->first();
+
+        $time_in = $absensi ? date("H:i", strtotime($absensi->time_in)) : null;
+        $time_out = $absensi ? date("H:i", strtotime($absensi->time_out)) : null;
+
+        $check = $absensi ? 1 : 0; // Cek apakah sudah ada data
+
+        return view('presensi.face-scan', compact('check', 'time_in', 'time_out'));
     }
     public function store(Request $request) {
         $nik = Auth::guard('employee')->user()->nik;
@@ -41,29 +55,44 @@ class AbsensiController extends Controller
         Storage::put($file, $image_base64);
 
         // Pengecekan Absensi masuk
+            // Cek apakah ada data absensi hari ini
         $absensi = Absensi::where('nik', $nik)
         ->where('absensi_date', $absensi_date)
         ->first();
 
-        if ($absensi) {
-            // Jika sudah absen masuk, update jam_out & foto_out
-            $absensi->update([
-                'time_out' => $time,
-                'photo_out' => $fileName,
-                'location' => $location
-            ]);
-            return response()->json(['message' => 'Absensi keluar berhasil!']);
-        } else {
-            // Jika belum ada, buat absensi baru
-            Absensi::create([
-                'nik' => $nik,
-                'absensi_date' => $absensi_date,
-                'time_in' => $time,
-                'time_out' => null, // Tambahkan ini agar tidak error
-                'photo_in' => $fileName,
-                'location' => $location
-            ]);
-            return response()->json(['message' => 'Absensi masuk berhasil!']);
+        // Jika tidak ada, maka buat data baru (Check-In)
+        if (!$absensi) {
+        Absensi::create([
+        'nik' => $nik,
+        'absensi_date' => $absensi_date,
+        'time_in' => $time,
+        'time_out' => null, // Wajib di-set NULL agar tidak bermasalah
+        'photo_in' => $request->image,
+        'location' => $location
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Check-in Successfully!',
+            'type' => 'checkin'
+        ]);
         }
+
+        // Jika sudah ada data absensi hari ini tapi belum check-out, lakukan update
+        if ($absensi->time_out == null) {
+        $absensi->update([
+        'time_out' => $time,
+        'photo_out' => $request->image,
+        'location' => $request->location
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Check-out Successfully!',
+            'type' => 'checkout'
+        ]);
+        }
+
+        // Jika sudah melakukan check-in dan check-out di hari yang sama
+        return response()->json(['error' => 'Anda sudah melakukan check-in dan check-out hari ini'], 400);
+
     }
 }

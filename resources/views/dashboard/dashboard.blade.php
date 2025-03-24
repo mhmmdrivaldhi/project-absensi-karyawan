@@ -12,8 +12,8 @@
                 {{ $errors->first('error') }}
             </div>
             @endif
-                <h2 id="user-name">Muhammad Rivaldhi</h2>
-                <span id="user-role">Head of IT</span>
+                <h2 id="user-name">{{ $employee->name }}</h2>
+                <span id="user-role">{{ $employee->position }}</span>
             </div>
         </div>
     </div>
@@ -77,8 +77,8 @@
                                     <ion-icon name="camera"></ion-icon>
                                 </div>
                                 <div class="presencedetail">
-                                    <h4 class="presencetitle">Masuk</h4>
-                                    <span>07:00</span>
+                                    <h4 class="presencetitle">Check-In</h4>
+                                    <span>{{ $time_in ?? '-' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -92,8 +92,8 @@
                                     <ion-icon name="camera"></ion-icon>
                                 </div>
                                 <div class="presencedetail">
-                                    <h4 class="presencetitle">Pulang</h4>
-                                    <span>12:00</span>
+                                    <h4 class="presencetitle">Check-Out</h4>
+                                    <span>{{ $time_out ?? '-' }}</span>
                                 </div>
                             </div>
                         </div>
