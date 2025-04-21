@@ -59,6 +59,12 @@
         <audio id="sound-notification-out">
             <source src="{{ asset('assets/sounds/succes-check-out.mp3') }}" type="audio/mpeg">
         </audio>
+        <audio id="radius-validation">
+            <source src="{{ asset('assets/sounds/radius-validation.mp3') }}">
+        </audio>
+        <audio id="checkin-checkout-validation">
+            <source src="{{ asset('assets/sounds/checkin-checkout-validation.mp3') }}">
+        </audio>
     <!-- * End Face Cam -->
 @endsection
 @push('myscript')
@@ -104,12 +110,12 @@ document.addEventListener("DOMContentLoaded", function() {
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">Global Maps</a>'
         }).addTo(map);
 
-        var marker = L.marker([latitude, longitude]).addTo(map);
-        var circle = L.circle([latitude, longitude], {
+        var marker = L.marker([-6.4745547, 106.8709519]).addTo(map);
+        var circle = L.circle([-6.4745547, 106.8709519], {
             color: 'red',
             fillColor: '#f03',
             fillOpacity: 0.5,
-            radius: 50
+            radius: 20
         }).addTo(map);
     }
 
@@ -190,15 +196,35 @@ document.addEventListener("DOMContentLoaded", function() {
                             setTimeout("location.href='/dashboard'", 2000);
                         },
                         error: function(xhr, status, error) {
-                            Swal.fire({
-                                title: 'Failed!',
-                                text: 'Oops, There is an error',
-                                icon: 'error',
-                                confirmButtonText: 'Yes'
-                            });
+                            showAlertError(xhr);
                         }
                     });
                 }
+            }
+            function showAlertError(xhr) {
+                let response = xhr.responseJSON;
+                let title = response?.status === "error" ? "Failed!" : "Oops!";
+                let message = response?.message || "An unknown error occured!";
+
+                if (message.includes("You're out of Radius Range!") || message.includes("radius")) {
+                    document.getElementById('radius-validation').play();
+                } else if (message.includes("You have Checked In and Checked Out Today!") || message.includes("check-in") || message.includes("check-out")) {
+                    document.getElementById('checkin-checkout-validation').play();
+                }
+
+                if (response?.errors) {
+                    message += '\n';
+                    Object.values(response.errors).forEach(function(errorArr) {
+                        message += '- ' + errorArr.join(', ') + '\n';
+                    });
+                }
+
+                Swal.fire({
+                    title: title,
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             }
         });
     });
