@@ -44,14 +44,25 @@ class AbsensiController extends Controller
         $distance = $this->distance($latitude_office, $longitude_office, $latitude_user, $longitude_user);
         $radius = round($distance['meters']);
 
+        // Pengecekan Absensi masuk
+        $absensi = Absensi::where('nik', $nik)
+        ->where('absensi_date', $absensi_date)
+        ->first();
+
+        if(!$absensi) {
+            $info = "in";
+        } else {
+            $info = "out";
+        }
+
         $image = $request->image;
         // Pengecekan apakah gambar terkirim
         if(!$image || !str_contains($image, 'data:image')) {
             return response()->json(['error' => 'Gambar yang anda kirim tidak valid',], 400);
         }
 
-        $folderPath = "public/uploads/absensi/";
-        $format_name = $nik. "=" .$absensi_date;
+        $folderPath = "uploads/absensi/";
+        $format_name = $nik . "-" . $absensi_date . "-" . $info;
         $image_parts = explode(";base64", $image);
 
         // Pengecekan apakah format base64 valid
@@ -59,24 +70,19 @@ class AbsensiController extends Controller
             return response()->json(['error' => 'Format gambar tidak valid'], 400);
         }
 
-        $image_base64 = base64_decode(explode(",", $image_parts[1])[1]);
+        $image_base64 = base64_decode($image_parts[1]);
         $fileName = $format_name . ".png";
         $file = $folderPath . $fileName;
         // Penyimpanan gambar ke storage
-        Storage::put($file, $image_base64);
+        Storage::disk('public')->put($file, $image_base64);
 
         // pengecekan jarak dan radius
-        if($radius != 20) {
+        if($radius < 20) {
             return response()->json([
                 'status' => 'error',
                 'message' => "You're out of Radius Range!",
             ], 400);
         } else {
-            // Pengecekan Absensi masuk
-            $absensi = Absensi::where('nik', $nik)
-            ->where('absensi_date', $absensi_date)
-            ->first();
-
             // Jika tidak ada, maka buat data baru (Check-In)
             if (!$absensi) {
             Absensi::create([
@@ -84,7 +90,7 @@ class AbsensiController extends Controller
             'absensi_date' => $absensi_date,
             'time_in' => $time,
             'time_out' => null, // Wajib di-set NULL agar tidak bermasalah
-            'photo_in' => $request->image,
+            'photo_in' => $fileName,
             'location' => $location
             ]);
             return response()->json([
@@ -98,7 +104,7 @@ class AbsensiController extends Controller
             if ($absensi->time_out == null) {
             $absensi->update([
             'time_out' => $time,
-            'photo_out' => $request->image,
+            'photo_out' => $fileName,
             'location' => $request->location
             ]);
             return response()->json([

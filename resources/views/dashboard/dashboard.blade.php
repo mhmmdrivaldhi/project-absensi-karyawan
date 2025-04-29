@@ -74,11 +74,15 @@
                         <div class="card-body">
                             <div class="presencecontent">
                                 <div class="iconpresence">
-                                    <ion-icon name="camera"></ion-icon>
+                                    @if ($absensi && $absensi->photo_in)
+                                        <img src="{{ asset('storage/uploads/absensi/' . $photo_in) }}" alt="" class="imaged w64 rounded-3">
+                                    @else
+                                        <ion-icon name="camera"></ion-icon>
+                                    @endif
                                 </div>
                                 <div class="presencedetail">
                                     <h4 class="presencetitle">Check-In</h4>
-                                    <span>{{ $time_in ?? '-' }}</span>
+                                    <span>{{ $absensi != null ? $absensi->time_in : '-' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -89,11 +93,15 @@
                         <div class="card-body">
                             <div class="presencecontent">
                                 <div class="iconpresence">
-                                    <ion-icon name="camera"></ion-icon>
+                                    @if ($absensi && $absensi->photo_out)
+                                        <img src="{{ asset('storage/uploads/absensi/' . $photo_out) }}" alt="" class="imaged w64 rounded-3">
+                                    @else
+                                        <ion-icon name="camera"></ion-icon>
+                                    @endif
                                 </div>
                                 <div class="presencedetail">
                                     <h4 class="presencetitle">Check-Out</h4>
-                                    <span>{{ $time_out ?? '-' }}</span>
+                                    <span>{{ $absensi != null && $absensi->time_out != null ? $absensi->time_out : '-' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -102,73 +110,44 @@
             </div>
         </div>
 
-        <div class="rekappresence">
-            <div id="chartdiv"></div>
-            <!-- <div class="row">
-                                                <div class="col-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="presencecontent">
-                                                                <div class="iconpresence primary">
-                                                                    <ion-icon name="log-in"></ion-icon>
-                                                                </div>
-                                                                <div class="presencedetail">
-                                                                    <h4 class="rekappresencetitle">Hadir</h4>
-                                                                    <span class="rekappresencedetail">0 Hari</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="presencecontent">
-                                                                <div class="iconpresence green">
-                                                                    <ion-icon name="document-text"></ion-icon>
-                                                                </div>
-                                                                <div class="presencedetail">
-                                                                    <h4 class="rekappresencetitle">Izin</h4>
-                                                                    <span class="rekappresencedetail">0 Hari</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row mt-1">
-                                                <div class="col-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="presencecontent">
-                                                                <div class="iconpresence warning">
-                                                                    <ion-icon name="sad"></ion-icon>
-                                                                </div>
-                                                                <div class="presencedetail">
-                                                                    <h4 class="rekappresencetitle">Sakit</h4>
-                                                                    <span class="rekappresencedetail">0 Hari</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="presencecontent">
-                                                                <div class="iconpresence danger">
-                                                                    <ion-icon name="alarm"></ion-icon>
-                                                                </div>
-                                                                <div class="presencedetail">
-                                                                    <h4 class="rekappresencetitle">Terlambat</h4>
-                                                                    <span class="rekappresencedetail">0 Hari</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div> -->
+        <div id="rekap-absensi">
+            <h3 class="badge bg-primary text-center p-2 fw-bold mb-2">Monthly Attendance Recap</h3>
+            <div class="row">
+                <div class="col-3">
+                    <div class="card border border-success">
+                        <div class="card-body text-center" style="padding: 16px; font-size: 26px;">
+                            <ion-icon name="briefcase-outline" class="text-success"></ion-icon>
+                            <span class="badge bg-success p-1" style="font-size: 20px;">1</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card border border-primary">
+                        <div class="card-body text-center" style="padding: 16px; font-size: 26px;">
+                            <ion-icon name="book-outline" class="text-primary"></ion-icon>
+                            <span class="badge bg-primary p-1" style="font-size: 20px;">1</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card border border-warning">
+                        <div class="card-body text-center" style="padding: 16px; font-size: 26px;">
+                            <ion-icon name="medkit-outline" class="text-warning"></ion-icon>
+                            <span class="badge bg-warning p-1" style="font-size: 20px;">1</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card border border-danger">
+                        <div class="card-body text-center" style="padding: 16px; font-size: 26px;">
+                            <ion-icon name="time-outline" class="text-danger"></ion-icon>
+                            <span class="badge bg-danger p-1" style="font-size: 20px;">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div class="presencetab mt-2">
             <div class="tab-pane fade show active" id="pilled" role="tabpanel">
                 <ul class="nav nav-tabs style1" role="tablist">
@@ -187,118 +166,20 @@
             <div class="tab-content mt-2" style="margin-bottom:100px;">
                 <div class="tab-pane fade show active" id="home" role="tabpanel">
                     <ul class="listview image-listview">
+                    @foreach ($photo_history as $history)
                         <li>
                             <div class="item">
-                                <div class="icon-box bg-primary">
-                                    <ion-icon name="image-outline" role="img" class="md hydrated"
-                                        aria-label="image outline"></ion-icon>
-                                </div>
+                            <div class="icon-box bg-primary">
+                                <ion-icon name="images-outline"></ion-icon>
+                            </div>
                                 <div class="in">
-                                    <div>Photos</div>
-                                    <span class="badge badge-danger">10</span>
+                                    <div>{{ date("d-m-Y", strtotime($history->absensi_date)) }}</div>
+                                    <span class="badge badge-success">{{ $history->time_in }}</span>
+                                    <span class="badge badge-danger">{{ $history->time_out }}</span>
                                 </div>
                             </div>
                         </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-secondary">
-                                    <ion-icon name="videocam-outline" role="img" class="md hydrated"
-                                        aria-label="videocam outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Videos</div>
-                                    <span class="text-muted">None</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-danger">
-                                    <ion-icon name="musical-notes-outline" role="img" class="md hydrated"
-                                        aria-label="musical notes outline"></ion-icon>
-                                </div>
-                                <div class="in">
-                                    <div>Music</div>
-                                </div>
-                            </div>
-                        </li>
+                    @endforeach
                     </ul>
                 </div>
                 <div class="tab-pane fade" id="profile" role="tabpanel">
