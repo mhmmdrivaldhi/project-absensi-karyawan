@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('absensi', function (Blueprint $table) {
             $table->id();
-            $table->string('nik', 16)->unique()->nullable();
+            $table->string('nik', 16)->nullable();
             $table->date('absensi_date');
             $table->time('time_in');
             $table->time('time_out')->nullable();
@@ -21,6 +21,8 @@ return new class extends Migration
             $table->text('photo_out')->nullable();
             $table->string('location');
             $table->timestamps();
+
+            $table->unique(['nik', 'absensi_date']);
         });
     }
 
