@@ -21,13 +21,29 @@ class DashboardController extends Controller
         $photo_in = $absensi ? $absensi->photo_in : null;
         $photo_out = $absensi ? $absensi->photo_out : null;
 
+        $date = date('Y-m-d');
         $month = date('m');
         $year = date('Y');
         $photo_history = DB::table('absensi')
+        ->where('nik', $nik)
         ->whereRaw('MONTH(absensi_date) = "' . $month . '"' )
         ->whereRaw('YEAR(absensi_date) ="' . $year . '"')
         ->orderBy('absensi_date')
         ->get();
-        return view('dashboard.dashboard', compact('employee', 'time_in', 'time_out', 'absensi', 'photo_in', 'photo_out', 'photo_history'));
+
+        $absensi_recap = DB::table('absensi')
+        ->selectRaw('COUNT(nik) as attended, COALESCE(SUM(IF(time_in > "08:00", 1, 0))  , 0) as lated')
+        ->where('nik', $nik)
+        ->whereRaw('MONTH(absensi_date) = "' . $month . '"' )
+        ->whereRaw('YEAR(absensi_date) ="' . $year . '"')
+        ->first();
+
+        $leaderboards = DB::table('absensi')
+        ->join('employees', 'absensi.nik', '=', 'employees.nik')
+        ->where('absensi_date', $date)
+        ->orderBy('time_in')
+        ->get();
+
+        return view('dashboard.dashboard', compact('employee', 'time_in', 'time_out', 'absensi', 'photo_in', 'photo_out', 'photo_history', 'absensi_recap', 'leaderboards'));
     }
 }
