@@ -7,9 +7,10 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
-
-use function PHPSTORM_META\type;
 
 class AbsensiController extends Controller
 {
@@ -132,5 +133,51 @@ class AbsensiController extends Controller
         $kilometers = $miles * 1.609344;
         $meters = $kilometers * 1000;
         return compact('meters');
+    }
+
+    public function editProfile() {
+        $nik = Auth::guard('employee')->user()->nik;
+        $employee = DB::table('employees')->where('nik', $nik)->first();
+        return view('presensi.edit-profile', compact('employee'));
+    }
+
+    public function updateProfile(Request $request) {
+        $nik = Auth::guard('employee')->user()->nik;
+        $employee = DB::table('employees')->where('nik', $nik)->first();
+
+        $full_name = $request->name;
+        $phone_number = $request->phone;
+        $data = [
+        'name' => $full_name,
+        'phone' => $phone_number,
+    ];
+
+    // Handle password
+    if (!empty($request->password)) {
+        $data['password'] = Hash::make($request->password);
+    }
+
+    // Handle photo upload
+    if ($request->hasFile('photo')) {
+        $ext = $request->file('photo')->getClientOriginalExtension();
+        $filename = uniqid() . '.' . $ext;
+
+        Storage::makeDirectory('public/uploads/employee');
+
+        $storaged = $request->file('photo')->storeAs('uploads/employee', $filename, 'public');
+        Log::info("Foto Disimpan di " . $storaged);
+
+        $data['photo'] = $filename;
+    } else {
+        $data['photo'] = $employee->photo; // tetap simpan yang lama kalau tidak upload
+    }
+
+    $updated = DB::table('employees')->where('nik', $nik)->update($data);
+
+    if ($updated) {
+        return redirect('/editprofile')->with('success', 'Update Profile Successfully!');
+    } else {
+        return redirect()->back()->with('error', 'Update Profile Failed!');
+    }
     }
 }

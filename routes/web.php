@@ -8,8 +8,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['employee.direct.login'])->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/logout', [AuthController::class, 'logoutProcess']);
+
     Route::get('/absensi', [AbsensiController::class, 'absensi']);
     Route::POST('/absensi/store', [AbsensiController::class, 'store']);
+
+    Route::get('/editprofile', [AbsensiController::class, 'editProfile']);
+    Route::post('/absensi/{nik}/updateprofile', [AbsensiController::class, 'updateProfile']);
 });
 
 Route::middleware(['employee.direct.logout'])->group(function(){

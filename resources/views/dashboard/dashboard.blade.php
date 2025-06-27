@@ -4,7 +4,17 @@
     <div class="section" id="user-section">
         <div id="user-detail">
             <div class="avatar">
-                <img src="{{ asset('assets/img/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded">
+                @php
+                    $employee = Auth::guard('employee')->user();
+                    $photo_path = $employee && $employee->photo ? Storage::url('uploads/employee/' . $employee->photo) : null;
+                @endphp
+
+                 @if ($photo_path)
+                    <img src="{{ asset($photo_path) }}" alt="avatar" class="imaged w64 rounded">
+                @else
+                    {{-- Optional: fallback avatar --}}
+                    <img src="{{ asset('assets/img/default-avatar.png') }}" alt="default avatar" class="imaged w64 rounded">
+                @endif
             </div>
             <div id="user-info">
             @if ($errors->has('error'))
