@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('position');
             $table->string('phone');
             $table->string('password', 255);
+            $table->string('photo', 50);
             $table->string('remember_token')->nullable();
             $table->timestamps();
         });

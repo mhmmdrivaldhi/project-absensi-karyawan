@@ -22,6 +22,7 @@ class EmployeeSeeder extends Seeder
                 'position' => 'IT Laravel Developer',
                 'phone' => '089637856545',
                 'password' => Hash::make('password123'), // Password di-hash
+                'photo' => 'rivaldhi.png',
         ]);
 
         Employee::create([
@@ -31,6 +32,7 @@ class EmployeeSeeder extends Seeder
                 'position' => 'Quality Assurance Developer',
                 'phone' => '081241289460',
                 'password' => Hash::make('rizky123'), // Password di-hash
+                'photo' => ''
         ]);
     }
 }
